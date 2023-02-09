@@ -5,3 +5,13 @@ Started 02 09 2023 by Prokhor Zhakharov
 The notes in this file are not made systematically or structured in the current stage.
 A systematically structured condensate of those (sometimes maybe phoney) ideas will later be realised in the README file.
 
+-	Atoms are nodes. Relations are links. Rules are trees.
+
+- 	The migration should take place incrementally, beginning with the rules for building a classical ontology 
+	(basically the skeleton of th class-membership rules:
+		(#$isa #$Horse #$Mammal) --> (Inheritance (Concept "Horse") (Concept "Mammal"))
+
+-	The concept of microtheories will be expanded to context, which is a list of strings that can be modified.
+	Besides from microtheories in the original KB, such entries can also be added automatically by reasoning
+	agents, queries and manually by the Ontology Engineer. Thus e.g. it can be exressed, that a fact only holds
+	in a specific belief etc.
