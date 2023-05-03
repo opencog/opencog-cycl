@@ -7,7 +7,7 @@ A systematically structured condensate of those (sometimes maybe phoney) ideas w
 
 -	Atoms are nodes. Relations are links. Rules are trees.
 
-- 	The migration should take place incrementally, beginning with the rules for building a classical ontology 
+- 	The migration should take place incrementally, beginning with the rules for building a classical ontology
 	(basically the skeleton of th class-membership rules:
 		(#$isa #$Horse #$Mammal) --> (Inheritance (Concept "Horse") (Concept "Mammal"))
 
@@ -15,3 +15,11 @@ A systematically structured condensate of those (sometimes maybe phoney) ideas w
 	Besides from microtheories in the original KB, such entries can also be added automatically by reasoning
 	agents, queries and manually by the Ontology Engineer. Thus e.g. it can be exressed, that a fact only holds
 	in a specific belief etc.
+
+	04 22 2023
+
+	I've decided to dump the whole kb rules into the form "(Evaluation (Predicate "#$likesAsFriend") (List (Concept "Abelard") (Concept "Heloise")))"
+	first as most predicates also can be concepts in cycl.
+	I will try to run some tests with a sample of ~8M rules on a test server.
+	The next step will be to indicate aequivalences between cyc - and opencog concepts such as "Inheritance".
+	This is for simplicity's sake to get some feeling of the matter of translating KBs....
