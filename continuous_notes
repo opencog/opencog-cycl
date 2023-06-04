@@ -23,3 +23,30 @@ A systematically structured condensate of those (sometimes maybe phoney) ideas w
 	I will try to run some tests with a sample of ~8M rules on a test server.
 	The next step will be to indicate aequivalences between cyc - and opencog concepts such as "Inheritance".
 	This is for simplicity's sake to get some feeling of the matter of translating KBs....
+
+	05 04 2023
+
+	Yesterday I tried to get the conceptify function together the whole afternoon. Thanks to help from Gandro, Pnt and Nickik from Luxeria it now finally works.
+	#$isa and #$genls are translated into (Concept "#$isa") and (Concept "#$genls"). It should be possible to indicate equivalences to InheritanceLink and MemberLink.
+	The memory usage is quite high for the cycl-opencog-0-1.py script (approx 35G for 8.4M rules in the rcyc dump).
+	This version of the translation still lacks the respective Microtheories added to the rules as attributes.
+
+	06 04 2023
+
+	Before today, not a single rule which I translated into opencog did work in the guile interface. My first aproach was simply to extract the first list after the name of the microtheory which itself is marked by #$ist. E.g.
+
+	(23497 (#$ist #$BaseKB (#$termOfUnit #<(#$SubcollectionOfWithRelationToFn #$PhysicalDevice #$isa #$UsedArtifact)> (#$SubcollectionOfWithRelationToFn #$PhysicalDevice #$isa #$UsedArtifact))))
+
+	into
+
+	(#$termOfUnit #<(#$SubcollectionOfWithRelationToFn #$PhysicalDevice #$isa #$UsedArtifact)> (#$SubcollectionOfWithRelationToFn #$PhysicalDevice #$isa #$UsedArtifact))
+
+	and then process that rule on.
+	This was a huge mistake: The rule itself is:
+
+	(#$SubcollectionOfWithRelationToFn #$PhysicalDevice #$isa #$UsedArtifact)
+
+	Once I knew that, I set a new 'marker' for the rule, which I decided to be #$< .
+	Whith this method i extracted approx 4.7M rules out of the original 8.5M.
+	My next step was to match for r'<' with re.search(). The results were not significantly better: ~4.8 M.
+	I thus decided to introduce a global variable nest_count (which is ugly). The core rule now is the the second item after #$ist wich itself is a list.
