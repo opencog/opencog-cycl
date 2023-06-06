@@ -10,6 +10,9 @@ import itertools
 from sexpdata import loads, dumps, Symbol
 import re
 
+
+
+
 def get_cli_args():
     """Gets CLI arguments, makes them available gobally"""
     arg_parser = argparse.ArgumentParser("Converts a dump of a CYC KB into Opencog Atomspace")
@@ -70,6 +73,7 @@ def parse_cycl(input):
 def extract_cycl_rule(rule):
     """Extracts the individual CYCL rules in the file content. It does so by picking the first list after '#$ist'."""
     result = []
+
     #nextlist = False
     #for rule in rules:
     #for  idx, entry in enumerate(rule):
@@ -85,27 +89,22 @@ def extract_cycl_rule(rule):
     #for rule in rules:
 
     for  entry in rule:
-            #print(entry)
-        if((isinstance(entry, list)) and (nextlist == True)):
-            next_count += 1
-        elif((isinstance(entry, list)) and (nextlist == False)):
-            #print("a string is a list!")
-            result.extend(extract_cycl_rule(entry))
-        elif((isinstance(entry, list)) and (nextlist == True) and (next_count == 1)):
-            #print('now i got it!')
-            #print(entry)
-            result = entry
-            nextlist = False
-            next_count = 0
-
-        elif(isinstance(entry, Symbol)):
-            if(re.search(entry.value() == "#$ist")):
-                nextlist = True
+        if(isinstance(entry, list)) :
+            for entry2 in entry:
+                if(isinstance(entry2, list)) :
+                    for entry3 in entry2:
+                        if(isinstance(entry3, list)) :
+                            print(entry3)
+                            return(entry3)
 
 
 
-    #print("before", result)
-    return result
+
+
+
+
+
+
 
 
 def conceptify(x):
@@ -118,64 +117,68 @@ def conceptify(x):
 
         return [Symbol('Concept'), x]
 
-def main():
-    errors = 0
-    done = 0
-    ruleset = []
-    ruleset2 = []
-    prel = ""
-    start_time = time.time()
-    get_cli_args()
-    #nextlist and next_count are used for rule extraction. I know it is ugly but with recursion it is the simplest way...
-    global nextlist
-    nextlist = False
-    global next_count
-    next_count = 0
+#def main():
+
+errors = 0
+done = 0
+ruleset = []
+ruleset2 = []
+prel = ""
+start_time = time.time()
+get_cli_args()
+next_count = 0
+nextlist = False
+
     
-    dump = read_file()
-    content = get_top_level(dump)
-    del dump
+dump = read_file()
+content = get_top_level(dump)
+del dump
     #print(content, "is content")
-    for dump_rule in content:
 
-        if(isinstance(dump_rule, list)):
-            ruleset.append((extract_cycl_rule(dump_rule)))
-            done += 1
-            #print("after",extract_cycl_rule(dump_rule))
-        else:
-            print(done, "wrong entry:", dump_rule)
+for dump_rule in content:
+    #print(dump_rule)
 
-    ruleset[:] = [rule for rule in ruleset if not  []]
-    """I know this is messy but it was my quickest solution..."""
+    if(isinstance(dump_rule, list)):
+        ruleset.append((extract_cycl_rule(dump_rule)))
+        done += 1
+        #print("after",extract_cycl_rule(dump_rule))
+    else:
+        print(done, "wrong entry:", dump_rule)
+
+ruleset[:] = [rule for rule in ruleset if not  []]
+"""I know this is messy but it was my quickest solution..."""
     #print("ruleset",ruleset)
-    for rule in ruleset:
+for rule in ruleset:
         #print(rule)
         #rule2 = []
         #print(rule, "\m")
-        try:
-            input = rule
-            head, *tail = input
-            if(isinstance(head, Symbol)):
-                head = head.value()
-            output = [Symbol('Predicate'), head] + conceptify(tail)
+    try:
+        input = rule
+        head, *tail = input
+        if(isinstance(head, Symbol)):
+            head = head.value()
+        output = [Symbol('Predicate'), head] + conceptify(tail)
 
         #print(output)
-            ruleset2.append(output)
-        except:
-            print("unpacking went wrong", rule)
-    del content
+        ruleset2.append(output)
+    except:
+        #print("unpacking went wrong", rule)
+        pass
+del content
     #print("ruleset:",ruleset)
-    print("items:", len(ruleset2))
-    with open(cli_args.outfile, 'w') as outfile:
-        for rule in ruleset2:
+print("items:", len(ruleset2))
+with open(cli_args.outfile, 'w') as outfile:
+    for rule in ruleset2:
             #print("rule before dumps:", rule)
-            line = dumps(rule)
+        line = dumps(rule)
             #print("line after:",line)
-            outfile.write(line)
-            outfile.write("\n")
-    end_time = time.time()
-    print(end_time - start_time, "seconds")
-    print(errors, "errors encountered")
-    print(done,"lines were processed.")
+        outfile.write(line)
+        outfile.write("\n")
+end_time = time.time()
+print(end_time - start_time, "seconds")
+print(errors, "errors encountered")
+print(done,"lines were processed.")
 
-main()
+#nextlist and next_count are used for rule extraction. I know it is ugly but with recursion it is the simplest way...
+
+#main()
