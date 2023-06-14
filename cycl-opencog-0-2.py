@@ -9,7 +9,8 @@ import argparse
 import itertools
 from sexpdata import loads, dumps, Symbol
 import re
-
+import logging
+import sys
 
 
 
@@ -72,7 +73,7 @@ def parse_cycl(input):
     
 def extract_cycl_rule(rule):
     """Extracts the individual CYCL rules in the file content. It does so by picking the first list after '#$ist'."""
-    result = []
+    #result = []
 
     #nextlist = False
     #for rule in rules:
@@ -92,10 +93,16 @@ def extract_cycl_rule(rule):
         if(isinstance(entry, list)) :
             for entry2 in entry:
                 if(isinstance(entry2, list)) :
-                    for entry3 in entry2:
+                    for idx, entry3 in enumerate(entry2):
                         if(isinstance(entry3, list)) :
-                            print(entry3)
+                            #print(entry3)
+                            #logger.info("midst:" + str(entry3))
+                            #if(isinstance(entry3, None)):
+                            #    return entry2
+                            #else:
                             return(entry3)
+                        elif((not isinstance(entry3, list) and (entry3 is entry2[-1]))):
+                            return entry2
 
 
 
@@ -129,7 +136,25 @@ get_cli_args()
 next_count = 0
 nextlist = False
 
-    
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+
+stdout_handler = logging.StreamHandler(sys.stdout)
+stdout_handler.setLevel(logging.DEBUG)
+stdout_handler.setFormatter(formatter)
+
+file_handler = logging.FileHandler('/home/user/log-2.log')
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(formatter)
+
+
+logger.addHandler(file_handler)
+logger.addHandler(stdout_handler)
+
+
+
 dump = read_file()
 content = get_top_level(dump)
 del dump
@@ -141,9 +166,12 @@ for dump_rule in content:
     if(isinstance(dump_rule, list)):
         ruleset.append((extract_cycl_rule(dump_rule)))
         done += 1
-        #print("after",extract_cycl_rule(dump_rule))
+        #logger.info("before:" + str(dump_rule))
+        #logger.info("after" + str(extract_cycl_rule(dump_rule)))
+        if(isinstance(extract_cycl_rule(dump_rule), type(None))):
+            logger.error(str(dump_rule))
     else:
-        print(done, "wrong entry:", dump_rule)
+        logger.error(done + "wrong entry:" + str(dump_rule))
 
 ruleset[:] = [rule for rule in ruleset if not  []]
 """I know this is messy but it was my quickest solution..."""
